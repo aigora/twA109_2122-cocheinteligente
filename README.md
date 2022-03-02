@@ -4,9 +4,9 @@ Este proyecto
 
 ## Integrantes del equipo
 
-Nicolás Murillo, nmurillo09
-Javier López, javilxpez
-Marcos Rechina
+Nicolás Murillo, nmurillo09\n
+Javier López, javilxpez\n
+Marcos Rechina\n
 
 ## Objetivos del trabajo
 

@@ -1,10 +1,12 @@
-# [Título del trabajo]
+# [CocheInteligente]
 
-[Descripción breve del proyecto a realizar (2-3 frases).]
+Este proyecto
 
 ## Integrantes del equipo
 
-[Nombres, apellidos, y usuario GitHub de los integrantes del equipo.]
+Nicolás Murillo, nmurillo09
+Javier López, javilxpez
+Marcos Rechina
 
 ## Objetivos del trabajo
 

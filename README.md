@@ -1,10 +1,10 @@
 **Integrantes del equipo**
 
-Nicolás Murillo, nmurillo09
+  -Nicolás Murillo, nmurillo09
 
-Javier López, javilxpez
+  -Javier López, javilxpez
 
-Marcos Rechina,
+  -Marcos Rechina,
 
 
 **Descripcion**

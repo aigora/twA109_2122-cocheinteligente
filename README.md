@@ -1,4 +1,4 @@
-**Nombres**
+**Integrantes del equipo**
 
 **Descripcion**
 

@@ -1,3 +1,0 @@
-Nombres
-Descripcion
-Objetivos

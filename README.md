@@ -1,5 +1,8 @@
 **Coche Inteligente**
-Nuestro proyecto se basará en la creación de un coche inteligente con el fin de 
+Nuestro proyecto se basará en la llegada de un camión de reparto después de la ruta.
+Al llegar a la empresa se colocará en un medidor de peso, para saber si queda algún paquete en la camión que no se ha repartido.
+A continuación el camión pasará por un test de alcoholemia (dato introducido por usuario) para saber si ha conducido bajo los efectos del alcohol.
+Por úiltimo llegará a la puerta del almacén, donde tendrá que pasar una tarjeta por el lector para permitirle el acceso y aparcar el vehículo.
 
 
 **Integrantes del equipo**
@@ -8,7 +11,7 @@ Nuestro proyecto se basará en la creación de un coche inteligente con el fin d
 
   -Javier López, javilxpez
 
-  -Marcos Rechina,
+  -Marcos Rechina, marcosrechi
 
 
 **Objetivos**
@@ -17,4 +20,4 @@ Nuestro proyecto se basará en la creación de un coche inteligente con el fin d
 
 -Conocer el estado de embriaguez del conductor.
 
--Controlar el acceso y salida de un garaje.
+-Controlar el acceso y salida de un garaje/almacén.

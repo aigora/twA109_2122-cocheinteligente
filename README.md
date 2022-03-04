@@ -13,7 +13,7 @@ Nuestro proyecto se basará en la creación de un coche inteligente con el fin d
 
 **Objetivos**
 
--Conocer si alguien permanece dentro del vehículo.
+-Controlar el peso de la carga del vehiculo.
 
 -Conocer el estado de embriaguez del conductor.
 

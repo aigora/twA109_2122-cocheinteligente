@@ -19,4 +19,4 @@ Nuestro proyecto se basará en la inspección técnica de ciertos característic
 
 -Conocer el estado de embriaguez del conductor.
 
--Controlar la luminosidad del ambiente.
+-Controlar la luminosidad y temperatura del ambiente.

@@ -23,6 +23,7 @@ Queremos implantar un sistema el cual nos permita conocer aspectos como la tempe
 -Controlar la luminosidad y temperatura del ambiente.
 
 **SENSORES**
+
 -Sensor de Teperatura:con el proposito de poder medir la temperatura del motor antes de comernzar la marcha
 
 -Sensor de proximidad y zumbador: Irian vinculados al aparcamiento del coche con el proposito de que si entra en contacto con algo suene el zumbador.

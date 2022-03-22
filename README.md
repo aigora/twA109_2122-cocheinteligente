@@ -26,10 +26,12 @@ Queremos implantar un sistema el cual nos permita conocer aspectos como la tempe
 
 -Sensor de Teperatura:con el proposito de poder medir la temperatura del motor antes de comernzar la marcha
 
--Sensor de proximidad y zumbador: Irian vinculados al aparcamiento del coche con el proposito de que si entra en contacto con algo suene el zumbador.
+-Sensor de proximidad ultrasonidos (HC-SR04) y zumbador: Irian vinculados al aparcamiento del coche con el proposito de que si entra en contacto con algo suene el zumbador.
 
 -Pantalla LCD:Para imprimir algun dato relevante medido con los sensores
 
--Sensor de luminosidad:Para controlar la intensidad de la luz 
+-Sensor de luminosidad(LDR 5X4 50K):Para controlar la intensidad de la luz 
+
+-Identificador con tarjeta:
 
 

@@ -24,9 +24,9 @@ Queremos implantar un sistema el cual nos permita conocer aspectos como la tempe
 
 **SENSORES**
 
--Sensor de Teperatura(MLX90614ESF) :con el proposito de poder medir la temperatura del ambiente antes de comernzar la marcha
+-Sensor de Teperatura(MLX90614ESF) :con el proposito de poder medir la temperatura del ambiente antes de comenzar la marcha
 
--Sensor de proximidad ultrasonidos (HC-SR04) y zumbador: Irian vinculados al aparcamiento del coche con el proposito de saber si hay un obstaculo de mamera que se activa el zumbador.
+-Sensor de proximidad ultrasonidos (HC-SR04) y zumbador: Irian vinculados al aparcamiento del coche con el proposito de saber si hay un obstaculo delante de mamera que se activa el zumbador.
 
 -Pantalla LCD(16x2 LCD) :Para imprimir algun dato relevante medido con los sensores.
 

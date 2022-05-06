@@ -1,7 +1,7 @@
 **Coche Inteligente**
 
-Nuestro proyecto se basará en la inspección técnica de ciertas características del vehículo.
-Queremos implantar un sistema el cual nos permita conocer aspectos como la temperatura del motorla y luminosidad del ambiente entre otros.
+Nuestro objetivo con el proyecto es hacer la revisión de las condiciones ambientales antes de arrancar el vehículo
+para asegurar una conducción segura.
 
 
 

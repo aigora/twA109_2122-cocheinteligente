@@ -1,4 +1,0 @@
-﻿  Source.cpp
-C:\Users\marco\OneDrive\Documentos\Ingeniería Electrónica\Clases\Informática\Proyecto Informática\Source.cpp(28,7): warning C4101: 'UID': variable local sin referencia
-C:\Users\marco\OneDrive\Documentos\Ingeniería Electrónica\Clases\Informática\Proyecto Informática\Source.cpp(74,6): warning C4101: 'opcion': variable local sin referencia
-  Proyecto Informática.vcxproj -> C:\Users\marco\OneDrive\Documentos\Ingeniería Electrónica\Clases\Informática\Proyecto Informática\x64\Debug\Proyecto Informática.exe

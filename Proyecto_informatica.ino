@@ -10,6 +10,8 @@
 #define trigPin 11
 #define echoPin 10
 
+#define FOTOPIN A0      // pin del sensor de luminosidad
+
 MFRC522 mfrc522(SS_PIN, RST_PIN); // crea objeto mfrc522 enviando pines de slave select y reset
 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();  // // crea objeto Mlx90614 equivalente al sensor de temperatura
@@ -33,6 +35,9 @@ void setup() {
   pinMode(11, OUTPUT);
   pinMode(12, OUTPUT);
   pinMode(13, OUTPUT);
+  
+  pinMode(FOTOPIN, INPUT); // lo activamos en modo entrada  sensor de luminosidad
+  
   Serial.begin(9600); // Velocidad de puerto serie 9600 bits/sg.
   while(!Serial) { ; }
   SPI.begin();        // inicializa bus SPI
@@ -63,7 +68,7 @@ void loop() {
              
          //Enviamos DATOS Y ESPERAMOS RESPUESTA DE VISUAL      
          Serial.print(mensaje_salida); // Envío por el puerto serie (VISUAL) el codigo de la tarjeta NFC
-         mensaje_salida=""; //borramos el mensaje enviado tras haberlo enviado
+         mensaje_salida = ""; //borramos el mensaje enviado tras haberlo enviado
              
          }//fin if
    }//FIN PRIMER IF  y fin de la sección lectura NFC
@@ -80,15 +85,29 @@ void loop() {
 
           Serial.print(mensaje_salida);  // Se la envío al arduino 
 
-          mensaje_salida="";  // borramos el mensaje enviado tras haberlo enviado
+          mensaje_salida = "";  // borramos el mensaje enviado tras haberlo enviado
       }
 
       if (mensaje_entrada.equals(luz)) {
           // Cógigo para la luminosidad
+          
+          int valorSensor = 0;
+          int valorMapeado = 0;
+          
+          valorSensor= analogRead(FOTOPIN); // guardamos el valor del sensor
+          valorMapeado=map(valorSensor, 770, 240, 0, 255); //valor maximo, valor minimo, valor minimo del nuevo rango, valor máximo del nuevo rango
+
+          mensaje_salida = String(valorSensor);
+          mensaje_salida = String(valorMapeado);
+
+          Serial.print(mensaje_salida);  // Se la envío al arduino
+
+          mensaje_salida = "";  // borramos el mensaje enviado tras haberlo enviado
       }
 
       if (mensaje_entrada.equals(obst)) {
           // Código para el ultrasonido
+          
           //Conexión HC-SR04
           long distancia;
           long duracion=distancia;

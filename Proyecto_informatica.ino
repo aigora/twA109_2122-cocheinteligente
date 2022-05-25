@@ -4,16 +4,17 @@
 #include<Wire.h>
 #include <Adafruit_MLX90614.h> // biblioteca del MLX90614 (sensor de temperatura)
 
+// PINES DE LECTOR DE TARJETA
 #define RST_PIN  9      // constante para referenciar pin de reset
 #define SS_PIN  10      // constante para referenciar pin de slave select
 
+// PIN DE SENSOR DE TEMPERATURA
 #define Pinter 2
 
-#define trigPin 11
-#define echoPin 10
+// PIN DE SENSOR DE LUMINOSIDAD
+#define FOTOPIN A0
 
-#define FOTOPIN A0      // pin del sensor de luminosidad
-
+// PINES DE SENSOR DE ULTRASONIDOS
 #define Pecho 6
 #define Ptrig 7
 
@@ -25,6 +26,8 @@ byte Lectura_vector[4]; // el vector donde se guardara la lectura del lector RFI
 
 String mensaje_entrada; // el mensaje de entrada desde Visual
 String mensaje_salida; // el mensaje de salida a Visual
+
+// Para compararlos con el mensaje recibido de Arduino
 String temp = "TEMPERATURA ";
 String luz = "LUMINOSIDAD ";
 String obst = "OBSTACULO ";
@@ -32,6 +35,8 @@ char cadena[11];
 
 void setup() {
   // put your setup code here, to run once:
+
+  // Inicio los pines
   pinMode(7, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(3, OUTPUT);
@@ -83,8 +88,7 @@ void loop() {
          mensaje_salida = ""; //borramos el mensaje enviado tras haberlo enviado
              
          }//fin if
-   }//FIN PRIMER IF  y fin de la sección lectura NFC
-
+   }//FIN PRIMER IF  y fin de la sección escaneo tarjeta
    delay(1000);
 
    if (Serial.available() > 0) {
@@ -102,9 +106,11 @@ void loop() {
 
       if (mensaje_entrada.equals(luz)) {
           // Cógigo para la luminosidad
+          // El valorMapeado sirve por si le quieres dar otra escala y otros límites a los valores recibidos por el sensor de luminosidad
+          // Nosotros hemos trabajado con los que te da directamente el sensor
           
           int valorSensor = 0;
-          int valorMapeado = 0;
+          // int valorMapeado = 0;
           
           valorSensor= analogRead(FOTOPIN); // guardamos el valor del sensor
           // valorMapeado=map(valorSensor, 770, 240, 0, 255); //valor maximo, valor minimo, valor minimo del nuevo rango, valor máximo del nuevo rango

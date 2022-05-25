@@ -4,6 +4,8 @@
 #include <locale.h>
 #include "SerialClass/SerialClass.h"
 
+
+// ETIQUETAS UTILIZADAS
 #define TAM_TEXTO 50
 #define MAX_BUFFER 200 
 #define PAUSA_MS 200
@@ -11,11 +13,7 @@
 #define MAX_USUARIOS 10
 
 
-char BufferSalida[MAX_BUFFER]; // Mensaje enviado a Arduino
-char BufferEntrada[MAX_BUFFER]; // Mensaje recibido de Arduino
-
-int bytesRecibidos;
-
+// ESRTUCTURAS UTILIZADAS
 typedef struct {
 	char codigo_tarjeta[TAM_TARJETA];
 	char nombre[TAM_TEXTO];
@@ -25,8 +23,10 @@ typedef struct {
 } Usuario;
 
 
+// FUNCIONES UTILIZADAS
 void menu_ppal();
 Usuario leer_escaneo_tarjeta(Serial* Arduino);
+void imprime_usuario(Usuario u);
 void crear_fichero_dat(Usuario a[], int n);
 int leer_fichero_dat(Usuario a[]);
 void control_alcoholemia(Usuario aux);
@@ -35,20 +35,33 @@ void luminosidad(Serial* Arduino);
 void obstaculo(Serial* Arduino);
 float float_from_cadena(char a[]);
 
+
+// CONSTANTES UTILIZADAS PARA LA COMUNICACI√ìN CON ARDUINO
+char BufferSalida[MAX_BUFFER]; // Mensaje enviado a Arduino
+char BufferEntrada[MAX_BUFFER]; // Mensaje recibido de Arduino
+
+int bytesRecibidos;		// Para comunicarse con Arduino
+
+
 /*
-Usuario usuarios[MAX_USUARIOS] = { {"0A 38 56 19", "Nicol·s", 611412522, 18, 1},
+Usuario usuarios[MAX_USUARIOS] = { {"0A 38 56 19", "Nicol√°s", 611412522, 18, 1},
 {"04 43 36 92", "Javier", 639107560, 18, 0},
 {"C7 85 FB 32", "Marcos", 616551911, 19, 1} };
 int nusuarios = 3;
 */
-// La parte de arriba es esencial si a˙n no se ha guardado en el fichero por primera vez-
+// La parte de arriba es esencial si a√∫n no se ha guardado en el fichero por primera vez
 
 
-Usuario usuarios[MAX_USUARIOS];
-int nusuarios;
+// CONSTANTES UTILIZADAS EN TODO EL PROGRAMA
+Usuario usuarios[MAX_USUARIOS];			// Todos los usuarios
+int nusuarios;							// El n√∫mero de usuarios
 
-char buffer_intro;
-int rev[] = { 0,0,0,0 };
+char buffer_intro;						// Para eliminar el intro del buffer de entrada
+int rev[] = { 0,0,0,0 };				// Para revisar que se han hecho todos los procesos
+// Posici√≥n 0 --> Alcoholemia
+// Posici√≥n 1 --> Temperatura
+// Posici√≥n 2 --> Luminosidad
+// Posici√≥n 3 --> Obst√°culos
 
 
 
@@ -57,86 +70,90 @@ int main(void) {
 	setlocale(LC_ALL, "es-ES"); // Para los textos
 
 	Serial* Arduino; // Declaro una clase de tipo Serial llamada Arduino
-	char puerto[] = "COM7"; // Arduino est· en el puerto COM7
+	char puerto[] = "COM7"; // Arduino est√° en el puerto COM7
 
-	int cortar = 1;
+	int cortar = 1, cortar2 = 1;		// Para cortar el while y el for
 	int i;
 	int hay_usuario = 0;
 
 	Arduino = new Serial((char*)puerto);
 
-	nusuarios = leer_fichero_dat(usuarios);
+	nusuarios = leer_fichero_dat(usuarios);		// Leo el fichero para saber cu√°ntos y que usuarios hay ya registrados
 
-	Usuario conductor = {};
+	Usuario conductor = {};			// El usuario cuya tarjeta haya sido escaneada
 
 	if (Arduino->IsConnected()) {
 		while (Arduino->IsConnected()&&cortar==1) {
 			Sleep(PAUSA_MS);
 			int opcion;
 			do {
-				menu_ppal(); // Llamo a la funciÛn para imprimir el men˙ principal
-				scanf_s("%d", &opcion); // Pido opciÛn al usuario
+				menu_ppal(); // Llamo a la funci√≥n para imprimir el men√∫ principal
+				scanf_s("%d", &opcion); // Pido opci√≥n al usuario
 
 				if (hay_usuario == 0 && opcion != 1)
 					printf("Antes de poder revisar las condiciones -> Escanee tarjeta\n");
 				// Para poder arrancar el coche y el sistema hay que escanear una tarjeta (tiene que haber un usuario)
+				// Si ya hay una tarjeta escaneada se pueden realizar otras funciones o volver a escanear una tarjeta
 
 				switch (opcion) {
 				case 1:
 					printf("ESCANEO DE TARJETA\n");
-					conductor = leer_escaneo_tarjeta(Arduino); // Llamo a la funciÛn que se encarga del escaneo de la tarjeta
+					conductor = leer_escaneo_tarjeta(Arduino);	// Llamo a la funci√≥n que se encarga del escaneo de la tarjeta
 					// Y recibo el usuario cuya tarjeta se haya escaneado
 					hay_usuario = 1;	// Alguien ha "metido la llave en el contacto" (ha escaneado la tarjeta)
-					rev[0] = 1;
+					rev[0] = 1;			// Habr√≠a que volver a pasar el control de alcholemia (ya que es otra persona)
 					break;
 				case 2:
 					printf("CONTROL DE ALCOHOLEMIA\n");
-					control_alcoholemia(conductor);
+					control_alcoholemia(conductor);			// Llamo a la funci√≥n que se encarga del control del alcoholemia
 					break;
 				case 3:
 					printf("TEMPERATURA DEL MOTOR\n");
-					temperatura(Arduino);
+					temperatura(Arduino);					// Llamo a la funci√≥n que se encarga de la temperatura
 					break;
 				case 4:
 					printf("LUMINOSIDAD\n");
-					luminosidad(Arduino);
+					luminosidad(Arduino);					// Llamo a la funci√≥n que se encarga de la luminosidad
 					break;
 				case 5:
-					printf("OBST¡CULOS\n");
-					obstaculo(Arduino);
+					printf("OBST√ÅCULOS\n");
+					obstaculo(Arduino);						// Llamo a la funci√≥n que se encarga de los obst√°culos
 					break;
 				case 6:
-					cortar = 0;
+					cortar = 0;								// Terminan las revisiones
 					break;
 				default:
-					printf("OpciÛn incorrecta\n");
+					printf("Opci√≥n incorrecta\n");			// No es un n√∫mero esperado
 				}
 			} while (opcion != 6);
-			crear_fichero_dat(usuarios, nusuarios);
+			crear_fichero_dat(usuarios, nusuarios);			// Vuelvo a crear el fichero para a√±adir los posibles nuevos usuarios
 		}
-		for (i = 0; i < 4 && rev[i] == 1; i++) {
+
+		// Antes de terminar compruebo si se han revisado todos los aspectos
+		for (i = 0; i < 4 && cortar2 == 1; i++) {
 			if (rev[i + 1] == 0) {
-				printf("No se han revisado todos los elementos");
+				printf("No se han revisado todos los elementos");		// Sino se ha hecho, se comunica al usuario
+				cortar2 = 0;
 			}
 		}
 	}
-	else { // Si Arduino no est· conectado
+	else { // Si Arduino no est√° conectado
 		printf("\nNo se ha podido conectar con Arduino.\n");
-		printf("Revise la conexiÛn, el puerto %s y desactive el monitor serie del IDE de Arduino.\n", puerto);
+		printf("Revise la conexi√≥n, el puerto %s y desactive el monitor serie del IDE de Arduino.\n", puerto);
 	}
 }
 
-void menu_ppal(void) {
+void menu_ppal(void) {		// El men√∫ del programa
 	int opcion;
-	printf("RevisiÛn del coche\n");
+	printf("Revisi√≥n del coche\n");
 	printf("==================\n");
 	printf("1. Escanee la tarjeta\n");
 	printf("2. Control de alcoholemia\n");
 	printf("3. Temperatura del motor\n");
 	printf("4. Luminosidad\n");
-	printf("5. Obst·culos\n");
-	printf("6. Terminar revisiÛn\n");
-	printf("Introduzca una opciÛn\n");
+	printf("5. Obst√°culos\n");
+	printf("6. Terminar revisi√≥n\n");
+	printf("Introduzca una opci√≥n\n");
 	return;
 }
 
@@ -151,14 +168,14 @@ Usuario leer_escaneo_tarjeta(Serial* Arduino) {
 
 	// Mete el mensaje recibido dentro de la variable BufferEntrada
 	if (bytesRecibidos <= 0) {
-		printf("\nNo se ha recibido respuesta a la peticiÛn.\n"); // Si no se recibe ning˙n byte de Arduino
+		printf("\nNo se ha recibido respuesta a la petici√≥n.\n"); // Si no se recibe ning√∫n byte de Arduino
 	}
 	else {
 		printf("\nLa respuesta recibida tiene %d bytes.\nRecibido = %s\n", bytesRecibidos, BufferEntrada);
-		// Imprime el n˙mero de bytes y el mensaje recibido de Arduino
+		// Imprime el n√∫mero de bytes y el mensaje recibido de Arduino
 		strcpy_s(UID, MAX_BUFFER - 1, BufferEntrada); // Lo guardamos en UID para conocer el usuario 
 			// y seleccionamos el numero de caracteres de BufferEntrada que queremos meter en UID
-		memset(BufferEntrada, 0, 11);	// Borro los datos de los primeros 11 car·cteres para la prÛxima funciÛn
+		memset(BufferEntrada, 0, 11);	// Borro los datos de los primeros 11 car√°cteres para la pr√≥xima funci√≥n
 		UID[11] = '\0'; // Nos aseguramos de que el UID sea solo de un usuario, si ha detectado mas de uno los borra
 		printf("El usuaruio es %s.\n", UID); // Imprime el dato final
 	}
@@ -166,6 +183,7 @@ Usuario leer_escaneo_tarjeta(Serial* Arduino) {
 		if (strcmp(UID, usuarios[i].codigo_tarjeta) == 0) {		// Lo comparo con los usarios existentes
 			printf("Bienvenido %s\n", usuarios[i].nombre);		// Le doy la bienvenida con su nombre
 			aux = usuarios[i];									// Devuelvo ese usuario
+			imprime_usuario(aux);								// Imprimo los datos del usuario
 			existente = 1;										// Es un usuario existente
 		}
 	}
@@ -173,39 +191,50 @@ Usuario leer_escaneo_tarjeta(Serial* Arduino) {
 	if (existente == 0) {							// No existe el usuario encontrado
 		printf("Usuario no encontrado\n");			// Creamos un nuevo usuario con la tarjeta que se ha escaneado
 		// Le pedimos los datos por teclado
-		// strcpy_s(usuarios[nusuarios].codigo_tarjeta, MAX_BUFFER - 1, UID);
+		strcpy_s(usuarios[nusuarios].codigo_tarjeta, TAM_TARJETA, UID);
 		printf("Introduzca su nombre: ");
 		scanf_s("%s", usuarios[nusuarios].nombre, TAM_TEXTO);
 		scanf_s("%c", &buffer_intro);				// Para quitar el intro de buffer de teclado
-		printf("Introduzca su telÈfono: ");
+		printf("Introduzca su tel√©fono: ");
 		scanf_s("%d", &usuarios[nusuarios].telefono);
 		printf("Introduzca su edad: ");
 		scanf_s("%d", &usuarios[nusuarios].edad);
-		printf("Introduzca 1 si es nÛvel y 0 si no lo es: ");
+		printf("Introduzca 1 si es n√≥vel y 0 si no lo es: ");
 		scanf_s("%d", &usuarios[nusuarios].novel);
-		nusuarios++;								// Aumento el n˙mero de usuarios
+		nusuarios++;								// Aumento el n√∫mero de usuarios
 		aux = usuarios[nusuarios];
 	}
 	
-	bytesRecibidos = -1;	// Le pongo este valor para la prÛxima vez que reciba bytes de Arduino
+	bytesRecibidos = -1;	// Le pongo este valor para la pr√≥xima vez que reciba bytes de Arduino
 	return aux;		// Le devuelvo el usuario escaneado
+}
+
+void imprime_usuario(Usuario u) {		// Imprime todos los datos del usuario
+	printf("C√≥digo de la tarjeta: %s\n", u.codigo_tarjeta);
+	printf("Nombre: %s\n", u.nombre);
+	printf("Tel√©fono: %d\n", u.telefono);
+	printf("Edad: %d\n", u.edad);
+	if (u.novel == 1)
+		printf("El usuario es novel");
+	else
+		printf("El usuario no es novel");
 }
 
 void control_alcoholemia(Usuario aux) {
 	printf("Introduzca su tasa de alcoholemia:\n");
 	float tasa;
 	scanf_s("%f", &tasa);	// Para que el usuario introduzca su tasa de alcoholemia
-	if (aux.novel == 0) {	// Si no es novel su tasa de alcohol permitida es m·s grande
+	if (aux.novel == 0) {	// Si no es novel su tasa de alcohol permitida es m√°s grande
 		if (tasa > 0.25)
 			printf("Su tasa de alcoholemia supera la permitida.\n");
 		else
-			printf("Tasa de alcoholemia est· dentro de los lÌmites.\n");
+			printf("Tasa de alcoholemia est√° dentro de los l√≠mites.\n");
 	}
-	else {					// Si es novel la tasa de alcohol permitida es m·s baja
+	else {					// Si es novel la tasa de alcohol permitida es m√°s baja
 		if (tasa > 0.15)
 			printf("Su tasa de alcoholemia supera la permitida.\n");
 		else {
-			printf("Tasa de alcoholemia est· dentro de los lÌmites.\n");
+			printf("Tasa de alcoholemia est√° dentro de los l√≠mites.\n");
 			rev[0] = 1;
 		}
 	}
@@ -216,42 +245,42 @@ void temperatura(Serial* Arduino) {
 	float tempn;
 
 	strcpy_s(BufferSalida, "TEMPERATURA \n");	// Introduzco el texto en BufferEntrada para enviarselos a Arduino
-	Arduino->WriteData(BufferSalida, strlen(BufferSalida));		// Le envÌo el BufferEntrada a arduino
-	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c·lculos
-	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a˙n m·s tiempo para realizar los c·lculos (por si acaso)
+	Arduino->WriteData(BufferSalida, strlen(BufferSalida));		// Le env√≠o el BufferEntrada a arduino
+	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c√°lculos
+	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a√∫n m√°s tiempo para realizar los c√°lculos (por si acaso)
 
 	bytesRecibidos = Arduino->ReadData(BufferEntrada, sizeof(char) * MAX_BUFFER - 1);
 	// Mete el mensaje recibido dentro de la variable BufferEntrada
 
-	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c·lculos
-	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a˙n m·s tiempo para realizar los c·lculos (por si acaso)
+	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c√°lculos
+	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a√∫n m√°s tiempo para realizar los c√°lculos (por si acaso)
 
 	if (bytesRecibidos <= 0) {
-		printf("\nNo se ha recibido respuesta a la peticiÛn.\n"); // Si no se recibe ning˙n byte de Arduino
+		printf("\nNo se ha recibido respuesta a la petici√≥n.\n"); // Si no se recibe ning√∫n byte de Arduino
 	}
 	else {
 		printf("\nLa respuesta recibida tiene %d bytes.\nRecibido = %s\n", bytesRecibidos, BufferEntrada);
-		// Imprime el n˙mero de bytes y el mensaje recibido de Arduino
-		strcpy_s(tempc, MAX_BUFFER - 1, BufferEntrada); // Lo guardamos en tempc para sacar el n˙mero de la cadena 
+		// Imprime el n√∫mero de bytes y el mensaje recibido de Arduino
+		strcpy_s(tempc, MAX_BUFFER - 1, BufferEntrada); // Lo guardamos en tempc para sacar el n√∫mero de la cadena 
 			// y seleccionamos el numero de caracteres de BufferEntrada que queremos meter en tempc
-		memset(BufferEntrada, 0, 10);	// Borro los datos de los primeros 10 car·cteres para la prÛxima funciÛn
+		memset(BufferEntrada, 0, 10);	// Borro los datos de los primeros 10 car√°cteres para la pr√≥xima funci√≥n
 		tempc[9] = '\0'; //Nos aseguramos de que el UID sea solo de un usuario, si ha detectado mas de uno los borra
 	}
 
-	tempn = float_from_cadena(tempc);	// Saco el n˙mero de la cadena recibida y lo meto en la variable
+	tempn = float_from_cadena(tempc);	// Saco el n√∫mero de la cadena recibida y lo meto en la variable
 
-	printf("La temperatura del motor es %.2f ∫C.\n", tempn); // Imprime el dato final
+	printf("La temperatura del motor es %.2f ¬∫C.\n", tempn); // Imprime el dato final
 	
 	if (tempn > 5) {
-		printf("La temperatura del motor es Ûptima. Puede arrancar\n");
+		printf("La temperatura del motor es √≥ptima. Puede arrancar\n");
 		rev[1] = 1;
 	}
-	else {				// Si la temperatura est· por debajo de 5∫C se considera demasiado frÌo
-		printf("El motor est· demasiado frio\n");
+	else {				// Si la temperatura est√° por debajo de 5¬∫C se considera demasiado fr√≠o
+		printf("El motor est√° demasiado frio\n");
 		printf("Deje el motor en marcha para que entre en calor\n");
 	}
-	bytesRecibidos = -1;	// Le pongo este valor para la prÛxima vez que reciba bytes de Arduino
-	memset(BufferSalida, 0, 20);	// Pongo un valor nulo para los primeros 20 caracteres para la prÛxima funciÛn
+	bytesRecibidos = -1;	// Le pongo este valor para la pr√≥xima vez que reciba bytes de Arduino
+	memset(BufferSalida, 0, 20);	// Pongo un valor nulo para los primeros 20 caracteres para la pr√≥xima funci√≥n
 }
 
 void luminosidad(Serial* Arduino) {
@@ -259,44 +288,44 @@ void luminosidad(Serial* Arduino) {
 	float lumn;
 
 	strcpy_s(BufferSalida, "LUMINOSIDAD \n");
-	Arduino->WriteData(BufferSalida, strlen(BufferSalida));		// Le envÌo el BufferEntrada a arduino
-	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c·lculos
-	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a˙n m·s tiempo para realizar los c·lculos (por si acaso)
+	Arduino->WriteData(BufferSalida, strlen(BufferSalida));		// Le env√≠o el BufferEntrada a arduino
+	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c√°lculos
+	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a√∫n m√°s tiempo para realizar los c√°lculos (por si acaso)
 
 	bytesRecibidos = Arduino->ReadData(BufferEntrada, sizeof(char) * MAX_BUFFER - 1);
 	// Mete el mensaje recibido dentro de la variable BufferEntrada
 
-	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c·lculos
-	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a˙n m·s tiempo para realizar los c·lculos (por si acaso)
+	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c√°lculos
+	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a√∫n m√°s tiempo para realizar los c√°lculos (por si acaso)
 
 
 	if (bytesRecibidos <= 0) {
-		printf("\nNo se ha recibido respuesta a la peticiÛn.\n"); // Si no se recibe ning˙n byte de Arduino
+		printf("\nNo se ha recibido respuesta a la petici√≥n.\n"); // Si no se recibe ning√∫n byte de Arduino
 	}
 	else {
 		printf("\nLa respuesta recibida tiene %d bytes.\nRecibido = %s\n", bytesRecibidos, BufferEntrada);
-		// Imprime el n˙mero de bytes y el mensaje recibido de Arduino
-		strcpy_s(lumc, MAX_BUFFER - 1, BufferEntrada); // Lo guardamos en distc para sacar el n˙mero de la cadena 
+		// Imprime el n√∫mero de bytes y el mensaje recibido de Arduino
+		strcpy_s(lumc, MAX_BUFFER - 1, BufferEntrada); // Lo guardamos en distc para sacar el n√∫mero de la cadena 
 			//y seleccionamos el numero de caracteres de BufferEntrada que queremos meter en UID
-		memset(BufferEntrada, 0, 10);	// Borro los datos de los primeros 10 car·cteres para la prÛxima funciÛn
+		memset(BufferEntrada, 0, 10);	// Borro los datos de los primeros 10 car√°cteres para la pr√≥xima funci√≥n
 		lumc[3] = '\0'; //Nos aseguramos de que el UID sea solo de un usuario, si ha detectado mas de uno los borra
 	}
 
-	lumn = float_from_cadena(lumc);	// Saco el n˙mero de la cadena recibida y lo meto en la variable
+	lumn = float_from_cadena(lumc);	// Saco el n√∫mero de la cadena recibida y lo meto en la variable
 
-	printf("El Ìnidce de luminosidad es %f.\n", lumn); // Imprime el dato final
+	printf("El √≠nidce de luminosidad es %f.\n", lumn); // Imprime el dato final
 
 	if (lumn > 270) {
 		printf("No hay problemas con la visibilidad de la carretera\n");
 		rev[2] = 1;
 	}
 	else {				// Si da un valor menor a x se considera que hay poca luz
-		printf("No hay suficiente luz, la visiÛn puede estar entorpecida\n");
-		printf("Debe conducir con los faros puestos, o esperar a que se haga de dÌa\n");
+		printf("No hay suficiente luz, la visi√≥n puede estar entorpecida\n");
+		printf("Debe conducir con los faros puestos, o esperar a que se haga de d√≠a\n");
 	}
 	
-	bytesRecibidos = -1;	// Le pongo este valor para la prÛxima vez que reciba bytes de Arduino
-	memset(BufferSalida, 0, 20);	// Pongo un valor nulo para los primeros 20 caracteres para la prÛxima funciÛn
+	bytesRecibidos = -1;	// Le pongo este valor para la pr√≥xima vez que reciba bytes de Arduino
+	memset(BufferSalida, 0, 20);	// Pongo un valor nulo para los primeros 20 caracteres para la pr√≥xima funci√≥n
 }
 
 void obstaculo(Serial* Arduino) {
@@ -304,39 +333,39 @@ void obstaculo(Serial* Arduino) {
 	float distn;
 
 	strcpy_s(BufferSalida, "OBSTACULO \n");		// Introduzco el texto en BufferEntrada para enviarselos a Arduino
-	Arduino->WriteData(BufferSalida, strlen(BufferSalida));		// Le envÌo el BufferEntrada a arduino
-	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c·lculos
-	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a˙n m·s tiempo para realizar los c·lculos (por si acaso)
+	Arduino->WriteData(BufferSalida, strlen(BufferSalida));		// Le env√≠o el BufferEntrada a arduino
+	Sleep(PAUSA_MS);	// Le doy timepo al Arduino tiempo para realizar los c√°lculos
+	Sleep(PAUSA_MS);	// Le doy tiempo al Arduino a√∫n m√°s tiempo para realizar los c√°lculos (por si acaso)
 
 	bytesRecibidos = Arduino->ReadData(BufferEntrada, sizeof(char) * MAX_BUFFER - 1);
 	// Mete el mensaje recibido dentro de la variable BufferEntrada
 
 	if (bytesRecibidos <= 0) {
-		printf("\nNo se ha recibido respuesta a la peticiÛn.\n"); // Si no se recibe ning˙n byte de Arduino
+		printf("\nNo se ha recibido respuesta a la petici√≥n.\n"); // Si no se recibe ning√∫n byte de Arduino
 	}
 	else {
 		printf("\nLa respuesta recibida tiene %d bytes.\nRecibido = %s\n", bytesRecibidos, BufferEntrada);
-		// Imprime el n˙mero de bytes y el mensaje recibido de Arduino
-		strcpy_s(distc, MAX_BUFFER - 1, BufferEntrada); // Lo guardamos en distc para sacar el n˙mero de la cadena 
+		// Imprime el n√∫mero de bytes y el mensaje recibido de Arduino
+		strcpy_s(distc, MAX_BUFFER - 1, BufferEntrada); // Lo guardamos en distc para sacar el n√∫mero de la cadena 
 			//y seleccionamos el numero de caracteres de BufferEntrada que queremos meter en UID
-		memset(BufferEntrada, 0, 10);	// Borro los datos de los primeros 10 car·cteres para la prÛxima funciÛn
+		memset(BufferEntrada, 0, 10);	// Borro los datos de los primeros 10 car√°cteres para la pr√≥xima funci√≥n
 		distc[7] = '\0'; //Nos aseguramos de que el UID sea solo de un usuario, si ha detectado mas de uno los borra
 	}
 
-	distn = float_from_cadena(distc);	// Saco el n˙mero de la cadena recibida y lo meto en la variable
+	distn = float_from_cadena(distc);	// Saco el n√∫mero de la cadena recibida y lo meto en la variable
 
 	printf("La distancia es %.2f cm.\n", distn); // Imprime el dato final
 	
 	if (distn > 20) {
-		printf("No hay obst·culos cerca\n");
+		printf("No hay obst√°culos cerca\n");
 		rev[3] = 1;
 	}
-	else {				// Si est· a menos de 20 centÌmetros se considera un obst·culo
-		printf("Hay un obst·culo delante\n");
-		printf("DÈ marcha atr·s o quite el obst·culo y vuelva a intentarlo\n");
+	else {				// Si est√° a menos de 20 cent√≠metros se considera un obst√°culo
+		printf("Hay un obst√°culo delante\n");
+		printf("D√© marcha atr√°s o quite el obst√°culo y vuelva a intentarlo\n");
 	}
-	bytesRecibidos = -1;	// Le pongo este valor para la prÛxima vez que reciba bytes de Arduino
-	memset(BufferSalida, 0, 20);	// Pongo un valor nulo para los primeros 20 caracteres para la prÛxima funciÛn
+	bytesRecibidos = -1;	// Le pongo este valor para la pr√≥xima vez que reciba bytes de Arduino
+	memset(BufferSalida, 0, 20);	// Pongo un valor nulo para los primeros 20 caracteres para la pr√≥xima funci√≥n
 }
 
 float float_from_cadena(char a[]) {
@@ -346,15 +375,15 @@ float float_from_cadena(char a[]) {
 	for (i = 0; i < MAX_BUFFER; i++) {
 		switch (estado) {
 		case 0:
-			if (a[i] >= '0' && a[i] <= '9')		// Si el car·cter es un n˙mero
+			if (a[i] >= '0' && a[i] <= '9')		// Si el car√°cter es un n√∫mero
 			{
-				numero = a[i] - '0';	// Lo guarda en el n˙mero
+				numero = a[i] - '0';	// Lo guarda en el n√∫mero
 				estado = 1;				// Y se va al caso 1
 			}
 			break;
 		case 1:
 			if (a[i] >= '0' && a[i] <= '9')			// Sigue haciendo lo mismo
-				numero = numero * 10 + a[i] - '0';	// Moviendo todo el n˙mero una a la izquierda (*10)
+				numero = numero * 10 + a[i] - '0';	// Moviendo todo el n√∫mero una a la izquierda (*10)
 			else
 				if (a[i] == '.' || a[i] == ',')		// Hasta que se encuentre una coma
 					estado = 2;						// Te vas a la parte decimal
@@ -362,9 +391,9 @@ float float_from_cadena(char a[]) {
 					estado = 3;
 			break;
 		case 2: // Parte decimal
-			if (a[i] >= '0' && a[i] <= '9')							// Hasta que deje de ser un n˙mero
+			if (a[i] >= '0' && a[i] <= '9')							// Hasta que deje de ser un n√∫mero
 			{
-				numero = numero + (float)(a[i] - '0') / divisor;	// Voy aÒadiendo los decimales
+				numero = numero + (float)(a[i] - '0') / divisor;	// Voy a√±adiendo los decimales
 				divisor *= 10;
 			}
 			else
@@ -372,7 +401,7 @@ float float_from_cadena(char a[]) {
 			break;
 		}
 	}
-	return numero;		// Devuelvo el n˙mero completo
+	return numero;		// Devuelvo el n√∫mero completo
 }
 
 void crear_fichero_dat(Usuario a[], int n) {
@@ -385,8 +414,8 @@ void crear_fichero_dat(Usuario a[], int n) {
 	if (fichero == NULL)	// Si no encuentra el fichero
 		printf("No se ha podido guardar la agenda\n");
 	else {
-		fwrite(&n, sizeof(int), 1, fichero);	// Guarda el n˙mero de usuarios actual
-		fwrite(a, sizeof(Usuario), n, fichero);	// Guarda los n primeros usuarios (los ˙nicos que tendr·n datos)
+		fwrite(&n, sizeof(int), 1, fichero);	// Guarda el n√∫mero de usuarios actual
+		fwrite(a, sizeof(Usuario), n, fichero);	// Guarda los n primeros usuarios (los √∫nicos que tendr√°n datos)
 		fclose(fichero);		// Cierro el fichero
 	}
 }
@@ -399,9 +428,9 @@ int leer_fichero_dat(Usuario a[]) {
 	e = fopen_s(&fichero, "Usuarios.dat", "rb");	// Abro el fichero "Usuarios"
 
 	if (fichero == NULL)
-		printf("La agenda estaba vacÌa\n");		// Si no encuentra el fichero
+		printf("La agenda estaba vac√≠a\n");		// Si no encuentra el fichero
 	else {
-		fread(&n, sizeof(int), 1, fichero);		// Lee el primer valor (un entero) equivalente al n˙mero de usuarios
+		fread(&n, sizeof(int), 1, fichero);		// Lee el primer valor (un entero) equivalente al n√∫mero de usuarios
 		fread(a, sizeof(Usuario), n, fichero);	// Lee los primeros n usuarios ya registrados
 		fclose(fichero);		// Cierro el fichero
 	}

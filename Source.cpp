@@ -10,7 +10,6 @@
 #define MAX_BUFFER 200 
 #define PAUSA_MS 200
 #define TAM_TARJETA 12
-#define MAX_USUARIOS 10
 
 
 // ESRTUCTURAS UTILIZADAS
@@ -44,7 +43,7 @@ int bytesRecibidos;		// Para comunicarse con Arduino
 
 
 /*
-Usuario usuarios[MAX_USUARIOS] = { {"0A 38 56 19", "Nicolás", 611412522, 18, 1},
+Usuario usuarios[3] = { {"0A 38 56 19", "Nicolás", 611412522, 18, 1},
 {"04 43 36 92", "Javier", 639107560, 18, 0},
 {"C7 85 FB 32", "Marcos", 616551911, 19, 1} };
 int nusuarios = 3;
@@ -53,7 +52,7 @@ int nusuarios = 3;
 
 
 // CONSTANTES UTILIZADAS EN TODO EL PROGRAMA
-Usuario usuarios[MAX_USUARIOS];			// Todos los usuarios
+Usuario* usuarios;						// Todos los usuarios
 int nusuarios;							// El número de usuarios
 
 char buffer_intro;						// Para eliminar el intro del buffer de entrada
@@ -79,6 +78,8 @@ int main(void) {
 	Arduino = new Serial((char*)puerto);
 
 	nusuarios = leer_fichero_dat(usuarios);		// Leo el fichero para saber cuántos y que usuarios hay ya registrados
+
+	usuarios = (Usuario*)malloc(nusuarios * sizeof(Usuario));
 
 	Usuario conductor = {};			// El usuario cuya tarjeta haya sido escaneada
 
@@ -190,19 +191,21 @@ Usuario leer_escaneo_tarjeta(Serial* Arduino) {
 
 	if (existente == 0) {							// No existe el usuario encontrado
 		printf("Usuario no encontrado\n");			// Creamos un nuevo usuario con la tarjeta que se ha escaneado
+		nusuarios++;								// Aumento el número de usuarios
+		usuarios = (Usuario*)realloc(usuarios, nusuarios * sizeof(Usuario));		// Aumento el tamaño del vector
+
 		// Le pedimos los datos por teclado
-		strcpy_s(usuarios[nusuarios].codigo_tarjeta, TAM_TARJETA, UID);
+		strcpy_s(usuarios[nusuarios - 1].codigo_tarjeta, TAM_TARJETA, UID);
 		printf("Introduzca su nombre: ");
-		scanf_s("%s", usuarios[nusuarios].nombre, TAM_TEXTO);
+		scanf_s("%s", usuarios[nusuarios - 1].nombre, TAM_TEXTO);
 		scanf_s("%c", &buffer_intro);				// Para quitar el intro de buffer de teclado
 		printf("Introduzca su teléfono: ");
-		scanf_s("%d", &usuarios[nusuarios].telefono);
+		scanf_s("%d", &usuarios[nusuarios - 1].telefono);
 		printf("Introduzca su edad: ");
-		scanf_s("%d", &usuarios[nusuarios].edad);
+		scanf_s("%d", &usuarios[nusuarios - 1].edad);
 		printf("Introduzca 1 si es nóvel y 0 si no lo es: ");
-		scanf_s("%d", &usuarios[nusuarios].novel);
-		nusuarios++;								// Aumento el número de usuarios
-		aux = usuarios[nusuarios];
+		scanf_s("%d", &usuarios[nusuarios - 1].novel);
+		aux = usuarios[nusuarios - 1];
 	}
 	
 	bytesRecibidos = -1;	// Le pongo este valor para la próxima vez que reciba bytes de Arduino
